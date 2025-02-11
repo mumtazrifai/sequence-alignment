@@ -78,5 +78,15 @@ def global_allgnment(seqx, seqy, score_mat, d):
 
     return (aligned_seqx, aligned_seqy)
 
+def output_alignment(seqx, seqy, namex, namey, path):
+    seq_start_length = max(len(namex), len(namey)) + 1
 
-print(global_allgnment(seqx, seqy, score_mat, 8))
+    line1 = namex + (" " * (seq_start_length - len(namex))) + seqx + "\n"
+    line2 = namey + (" " * (seq_start_length - len(namey))) + seqy
+
+    with open(path, "w") as file:
+        file.writelines([line1, line2])
+
+aligned_seqx, aligned_seqy = global_allgnment(seqx, seqy, score_mat, 8)
+
+output_alignment(aligned_seqx, aligned_seqy, "Sequence X", "Sequence Y", "output.align")

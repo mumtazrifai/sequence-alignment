@@ -11,8 +11,8 @@ seqx = "PAWHEAE"
 seqy = "HEAGAWGHEE"
 
 def global_allgnment(seqx, seqy, score_mat, d):
-    alignment_mat = np.empty(shape=(len(seqx) + 1, len(seqy) + 1))
-    pointer_mat = np.empty(shape=(len(seqx) + 1, len(seqy) + 1, 2), dtype=int)
+    alignment_mat = np.full([len(seqx) + 1, len(seqy) + 1], np.nan)
+    pointer_mat = np.full([len(seqx) + 1, len(seqy) + 1, 2], np.nan, dtype=int)
 
     # Create function to recursively fill the alignment score matrix
 
@@ -32,6 +32,9 @@ def global_allgnment(seqx, seqy, score_mat, d):
             alignment_mat[i, 0] = best_score
             pointer_mat[i, 0, :] = (-1, 0)
             return best_score
+
+        if not np.isnan(alignment_mat[i, j]):
+            return alignment_mat[i, j] 
 
         both_residues_aligned = calc_score(i-1, j-1) + score_mat.loc[seqx[i - 1], seqy[j - 1]]
         x_aligned_with_gap = calc_score(i-1, j) - d

@@ -114,13 +114,13 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("fasta_path", action="store", type=pathlib.Path)
-    parser.add_argument("substitution_matrix", action="store", type=pathlib.Path)
-    parser.add_argument("output_path", action="store", type=pathlib.Path)
+    parser.add_argument("fasta_path", metavar="input_fasta", action="store", type=pathlib.Path, help="The path of the file containing the two sequences to be aligned in FASTA format.")
+    parser.add_argument("sub_mat_path", metavar="substitution_matrix", action="store", type=pathlib.Path, help="The path of the subsitution matrix file with space-separated values. The order of the rows and columns is: \"ARNDCQEGHILKMFPSTWYV\".")
+    parser.add_argument("output_path", metavar="output", action="store", type=pathlib.Path, help="The path of the alignment file to be outputted.")
 
     args = parser.parse_args()
 
-    sub_mat = load_substitution_matrix(args.substitution_matrix)
+    sub_mat = load_substitution_matrix(args.sub_mat_path)
     seqx, seqy, seqx_name, seqy_name = parse_fasta(args.fasta_path)
 
     sys.setrecursionlimit(len(seqx) + len(seqy) + 3)

@@ -4,14 +4,14 @@ import sys
 import argparse
 import pathlib
 
-def load_score_matrix(path):
+def load_substitution_matrix(path):
     amino_acid_order = list("ARNDCQEGHILKMFPSTWYV")
 
-    score_mat = pd.read_csv(path, sep=" ", dtype=float, header=None)
-    score_mat.index = amino_acid_order
-    score_mat.columns = amino_acid_order
+    sub_mat = pd.read_csv(path, sep=" ", dtype=float, header=None)
+    sub_mat.index = amino_acid_order
+    sub_mat.columns = amino_acid_order
 
-    return score_mat
+    return sub_mat
 
 def parse_fasta(path):
     with open(path) as file:
@@ -30,7 +30,7 @@ def parse_fasta(path):
 
         return (seqx, seqy, seqx_name, seqy_name)
 
-def global_allgnment(seqx, seqy, score_mat, d):
+def global_allgnment(seqx, seqy, sub_mat, d):
     alignment_mat = np.full([len(seqx) + 1, len(seqy) + 1], np.nan)
     pointer_mat = np.full([len(seqx) + 1, len(seqy) + 1, 2], np.nan, dtype=int)
 
@@ -56,7 +56,7 @@ def global_allgnment(seqx, seqy, score_mat, d):
         if not np.isnan(alignment_mat[i, j]):
             return alignment_mat[i, j] 
 
-        both_residues_aligned = calc_score(i-1, j-1) + score_mat.loc[seqx[i - 1], seqy[j - 1]]
+        both_residues_aligned = calc_score(i-1, j-1) + sub_mat.loc[seqx[i - 1], seqy[j - 1]]
         x_aligned_with_gap = calc_score(i-1, j) - d
         y_aligned_with_gap = calc_score(i, j-1) - d
 
@@ -115,15 +115,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("fasta_path", action="store", type=pathlib.Path)
-    parser.add_argument("score_matrix", action="store", type=pathlib.Path)
+    parser.add_argument("substitution_matrix", action="store", type=pathlib.Path)
 
     args = parser.parse_args()
 
-    score_mat = load_score_matrix(args.score_matrix)
+    sub_mat = load_substitution_matrix(args.substitution_matrix)
     seqx, seqy, seqx_name, seqy_name = parse_fasta(args.fasta_path)
 
     sys.setrecursionlimit(len(seqx) + len(seqy) + 3)
 
-    aligned_seqx, aligned_seqy = global_allgnment(seqx, seqy, score_mat, 8)
+    aligned_seqx, aligned_seqy = global_allgnment(seqx, seqy, sub_mat, 8)
 
     output_alignment(aligned_seqx, aligned_seqy, seqx_name, seqy_name, "output.align")

@@ -22,10 +22,10 @@ def parse_fasta(path):
             if ">" in lines[i]:
                 seq_name_indicies.append(i)
         
-        seqx_name = lines[seq_name_indicies[0]].strip().replace(">", "")
+        seqx_name = lines[seq_name_indicies[0]].replace(">", "").strip()
         seqx = "".join(lines[seq_name_indicies[0] + 1 : seq_name_indicies[1]]).replace("\n", "").replace("\r", "")
 
-        seqy_name = lines[seq_name_indicies[1]].strip().replace(">", "")
+        seqy_name = lines[seq_name_indicies[1]].replace(">", "").strip()
         seqy = "".join(lines[seq_name_indicies[1] + 1:]).replace("\n", "").replace("\r", "")
 
         return (seqx, seqy, seqx_name, seqy_name)
@@ -101,14 +101,13 @@ def global_allgnment(seqx, seqy, sub_mat, d):
 
     return (aligned_seqx, aligned_seqy)
 
-def output_alignment(seqx, seqy, namex, namey, path):
+def get_output_text(seqx, seqy, namex, namey):
     seq_start_length = max(len(namex), len(namey)) + 1
 
-    line1 = namex + (" " * (seq_start_length - len(namex))) + seqx + "\n"
-    line2 = namey + (" " * (seq_start_length - len(namey))) + seqy
+    line1 = namex + (" " * (seq_start_length - len(namex))) + "| " + seqx + "\n"
+    line2 = namey + (" " * (seq_start_length - len(namey))) + "| " + seqy
 
-    with open(path, "w") as file:
-        file.writelines([line1, line2])
+    return (line1, line2)
 
 if __name__ == "__main__":
 
@@ -116,7 +115,7 @@ if __name__ == "__main__":
 
     parser.add_argument("fasta_path", metavar="input_fasta", action="store", type=pathlib.Path, help="The path of the file containing the two sequences to be aligned in FASTA format.")
     parser.add_argument("sub_mat_path", metavar="substitution_matrix", action="store", type=pathlib.Path, help="The path of the subsitution matrix file with space-separated values. The order of the rows and columns is: \"ARNDCQEGHILKMFPSTWYV\".")
-    parser.add_argument("output_path", metavar="output", action="store", type=pathlib.Path, help="The path of the alignment file to be outputted.")
+    parser.add_argument("-o", "--output", metavar="output", action="store", type=pathlib.Path, help="The path of the alignment file to be outputted. If not set, will simply print the results")
 
     args = parser.parse_args()
 
@@ -127,4 +126,10 @@ if __name__ == "__main__":
 
     aligned_seqx, aligned_seqy = global_allgnment(seqx, seqy, sub_mat, 8)
 
-    output_alignment(aligned_seqx, aligned_seqy, seqx_name, seqy_name, args.output_path)
+    output_line1, output_line2 = get_output_text(aligned_seqx, aligned_seqy, seqx_name, seqy_name)
+
+    if args.output:
+        with open(args.output, "w") as file:
+            file.writelines([output_line1, output_line2])
+    else:
+        print(output_line1, output_line2, sep="")

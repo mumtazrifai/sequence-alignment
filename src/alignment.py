@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import sys
+import argparse
+import pathlib
 
 def load_score_matrix(path):
     amino_acid_order = list("ARNDCQEGHILKMFPSTWYV")
@@ -108,12 +110,20 @@ def output_alignment(seqx, seqy, namex, namey, path):
     with open(path, "w") as file:
         file.writelines([line1, line2])
 
-score_mat = load_score_matrix("src\\score_matrices\\BLOSUM50.txt")
+if __name__ == "__main__":
 
-seqx, seqy, seqx_name, seqy_name = parse_fasta("src/example_seqs/durbin.fasta")
+    parser = argparse.ArgumentParser()
 
-sys.setrecursionlimit(len(seqx) + len(seqy) + 3)
+    parser.add_argument("fasta_path", action="store", type=pathlib.Path)
+    parser.add_argument("score_matrix", action="store", type=pathlib.Path)
 
-aligned_seqx, aligned_seqy = global_allgnment(seqx, seqy, score_mat, 8)
+    args = parser.parse_args()
 
-output_alignment(aligned_seqx, aligned_seqy, seqx_name, seqy_name, "output.align")
+    score_mat = load_score_matrix(args.score_matrix)
+    seqx, seqy, seqx_name, seqy_name = parse_fasta(args.fasta_path)
+
+    sys.setrecursionlimit(len(seqx) + len(seqy) + 3)
+
+    aligned_seqx, aligned_seqy = global_allgnment(seqx, seqy, score_mat, 8)
+
+    output_alignment(aligned_seqx, aligned_seqy, seqx_name, seqy_name, "output.align")

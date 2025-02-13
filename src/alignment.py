@@ -116,6 +116,7 @@ if __name__ == "__main__":
 
     parser.add_argument("fasta_path", action="store", type=pathlib.Path)
     parser.add_argument("substitution_matrix", action="store", type=pathlib.Path)
+    parser.add_argument("output_path", action="store", type=pathlib.Path)
 
     args = parser.parse_args()
 
@@ -126,4 +127,4 @@ if __name__ == "__main__":
 
     aligned_seqx, aligned_seqy = global_allgnment(seqx, seqy, sub_mat, 8)
 
-    output_alignment(aligned_seqx, aligned_seqy, seqx_name, seqy_name, "output.align")
+    output_alignment(aligned_seqx, aligned_seqy, seqx_name, seqy_name, args.output_path)

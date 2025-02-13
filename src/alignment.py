@@ -2,16 +2,22 @@ import numpy as np
 import pandas as pd
 import sys
 
-amino_acid_order = list("ARNDCQEGHILKMFPSTWYV")
+def parse_fasta(path):
+    with open(path) as file:
+        lines = file.readlines()
+        seq_name_indicies = []
 
-score_mat = pd.read_csv("src\\score_matrices\\BLOSUM50.txt", sep=" ", dtype=float, header=None)
-score_mat.index = amino_acid_order
-score_mat.columns = amino_acid_order
+        for i in range(len(lines)):
+            if ">" in lines[i]:
+                seq_name_indicies.append(i)
+        
+        seqx_name = lines[seq_name_indicies[0]].strip().replace(">", "")
+        seqx = "".join(lines[seq_name_indicies[0] + 1 : seq_name_indicies[1]]).replace("\n", "").replace("\r", "")
 
-seqx = "PAWHEAE"
-seqy = "HEAGAWGHEE"
+        seqy_name = lines[seq_name_indicies[1]].strip().replace(">", "")
+        seqy = "".join(lines[seq_name_indicies[1] + 1:]).replace("\n", "").replace("\r", "")
 
-sys.setrecursionlimit(len(seqx) + len(seqy) + 3)
+        return (seqx, seqy, seqx_name, seqy_name)
 
 def global_allgnment(seqx, seqy, score_mat, d):
     alignment_mat = np.full([len(seqx) + 1, len(seqy) + 1], np.nan)
@@ -93,6 +99,16 @@ def output_alignment(seqx, seqy, namex, namey, path):
     with open(path, "w") as file:
         file.writelines([line1, line2])
 
+amino_acid_order = list("ARNDCQEGHILKMFPSTWYV")
+
+score_mat = pd.read_csv("src\\score_matrices\\BLOSUM50.txt", sep=" ", dtype=float, header=None)
+score_mat.index = amino_acid_order
+score_mat.columns = amino_acid_order
+
+seqx, seqy, seqx_name, seqy_name = parse_fasta("src/example_seqs/durbin.fasta")
+
+sys.setrecursionlimit(len(seqx) + len(seqy) + 3)
+
 aligned_seqx, aligned_seqy = global_allgnment(seqx, seqy, score_mat, 8)
 
-output_alignment(aligned_seqx, aligned_seqy, "Sequence X", "Sequence Y", "output.align")
+output_alignment(aligned_seqx, aligned_seqy, seqx_name, seqy_name, "output.align")

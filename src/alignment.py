@@ -2,6 +2,15 @@ import numpy as np
 import pandas as pd
 import sys
 
+def load_score_matrix(path):
+    amino_acid_order = list("ARNDCQEGHILKMFPSTWYV")
+
+    score_mat = pd.read_csv(path, sep=" ", dtype=float, header=None)
+    score_mat.index = amino_acid_order
+    score_mat.columns = amino_acid_order
+
+    return score_mat
+
 def parse_fasta(path):
     with open(path) as file:
         lines = file.readlines()
@@ -99,11 +108,7 @@ def output_alignment(seqx, seqy, namex, namey, path):
     with open(path, "w") as file:
         file.writelines([line1, line2])
 
-amino_acid_order = list("ARNDCQEGHILKMFPSTWYV")
-
-score_mat = pd.read_csv("src\\score_matrices\\BLOSUM50.txt", sep=" ", dtype=float, header=None)
-score_mat.index = amino_acid_order
-score_mat.columns = amino_acid_order
+score_mat = load_score_matrix("src\\score_matrices\\BLOSUM50.txt")
 
 seqx, seqy, seqx_name, seqy_name = parse_fasta("src/example_seqs/durbin.fasta")
 

@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import sys
 
 amino_acid_order = list("ARNDCQEGHILKMFPSTWYV")
 
@@ -9,6 +10,8 @@ score_mat.columns = amino_acid_order
 
 seqx = "PAWHEAE"
 seqy = "HEAGAWGHEE"
+
+sys.setrecursionlimit(len(seqx) + len(seqy) + 3)
 
 def global_allgnment(seqx, seqy, score_mat, d):
     alignment_mat = np.full([len(seqx) + 1, len(seqy) + 1], np.nan)
